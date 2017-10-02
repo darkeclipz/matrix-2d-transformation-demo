@@ -116,7 +116,9 @@
         var fps = 60;
         function draw() {
             // Change the transformation matrix each time the screen is drawn.
-            var transform = new Matrix([new Vec2(1 + Math.sin(animateFrame/200)*2/3, Math.cos(animateFrame/100)), new Vec2(Math.sin(animateFrame/1000),1+Math.cos(animateFrame/200)/3)]);
+            var transform = new Matrix([new Vec2(1 + Math.sin(animateFrame/200) * 2 / 3, Math.cos(animateFrame/100))
+                                      , new Vec2(Math.sin(animateFrame/1000)           , 1 + Math.cos(animateFrame/200) / 3)]);
+                                      
             m2 = m.multiply(transform);
             clear();
             setColor('white');
