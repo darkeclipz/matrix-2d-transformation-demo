@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-        <title>Matrix</title>
+        <title>2D Transformation Demo</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
         <script  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="  crossorigin="anonymous"></script>
@@ -36,12 +36,11 @@
         console.log('Canvas size set to width: ' + width + ' and height: ' + height);
     }
 
-    function drawPoint(x, y, size) {
+    function drawPoint(x, y) {
         context.fillRect(x, y, 1, 1);
     }
 
     function drawLine(ax, ay, bx, by) {
-        console.log('draw line ' + ax + ', ' + ay + ', ' + bx + ', ' + by);
         context.beginPath();
         context.moveTo(ax, ay);
         context.lineTo(bx, by);
@@ -81,6 +80,7 @@
     }
 
     function drawCopyright() {
+        setColor('white');
         drawText(15, 25, "Linear Algebra - 2D Transformation Matrix Demo")
         drawText(17, height-20, "© Darky (2017)")
     }
@@ -96,12 +96,9 @@
         // Init
         initCanvas();
         setCanvasSize();
-
-        // Style
-        setColor('red');
         setFont('9px Arial');
 
-        // Draw 100 points around the center
+        // Generate 400 vectors
         var m = new Matrix([]);
         for(var i=-10;i<=10;i++) {
             for(var j=-10;j<=10;j++) {
@@ -109,34 +106,41 @@
             }
         }
 
+        // Animation settings
+        var fps = 60;
         var animateFrame = 1;
         draw();
 
-        // Redraw with 60 fps
-        var fps = 60;
         function draw() {
-            // Change the transformation matrix each time the screen is drawn.
+            // Change the transformation matrix each time the screen is drawn based on animateFrame.
+            // It will oscillate around the sin/cos functions; it are just some random numbers 
+            // to change the oscillation speed and amplitude to get a nice effect. (And yes, they are mixed up)
             var transform = new Matrix([new Vec2(1 + Math.sin(animateFrame/200) * 2 / 3, Math.cos(animateFrame/100))
                                       , new Vec2(Math.sin(animateFrame/1000)           , 1 + Math.cos(animateFrame/200) / 3)]);
-                                      
+            
+            // Apply linear transformation 
             m2 = m.multiply(transform);
+
+            // Reset it
             clear();
-            setColor('white');
             drawCopyright();
             drawGrid();
+
+            // Draw all the transformed vectors in m2
             for(var i=0; i<m2.entries.length; i++)
             {
-                var intensity = (i / m2.entries.length) * 200 + 55;
+                var intensity = i / m2.entries.length * 200 + 55;
                 setColor('rgb(0,'+ Math.round(intensity) +',255)');
                 drawVect(m2.entries[i].scale(1.5));
             }
-            animateFrame++;
-
-            // Draw basis vectors
+            
+            // Draw transformation vectors
             setColor('yellow');
             drawVect(transform.entries[0]);
             drawVect(transform.entries[1]);
 
+            // Next animation
+            animateFrame++;
             setTimeout(draw, 1000/fps);
         }
     });
@@ -155,9 +159,6 @@
         }
         this.multiply = function(v) {
             return new Vec2(this.x * v.x, this.y * v.y);
-        }
-        this.getInfo = function() {
-            console.log('Vec2 getInfo -> [' + this.x + ',' + this.y + ']');
         }
     }
 
